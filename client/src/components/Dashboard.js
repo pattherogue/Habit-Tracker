@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Alert, ListGroup, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Alert, ListGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import HabitForm from './HabitForm';
 import { fetchHabits, createHabit, getUserData, getHabitStatistics } from '../services/api';
@@ -9,57 +9,69 @@ function Dashboard() {
   const [habits, setHabits] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState('');
-
   const [statistics, setStatistics] = useState({ 
     today: { completionRate: 0 }, 
     overall: { completionRate: 0 } 
   });
 
   useEffect(() => {
-    loadData();
-  }, []);
+    let isMounted = true;
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [habitsData, userData, statsData] = await Promise.all([
-        fetchHabits(),
-        getUserData(),
-        getHabitStatistics()
-      ]);
-      setHabits(habitsData);
-      setUserName(userData.name);
-      setStatistics(statsData);
-      setError(null);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      setError('Failed to load data. Please try again.');
-    }
-    setLoading(false);
-  };
+    const loadData = async () => {
+      try {
+        const [habitsData, userData, statsData] = await Promise.all([
+          fetchHabits(),
+          getUserData(),
+          getHabitStatistics()
+        ]);
+        
+        if (isMounted) {
+          setHabits(habitsData);
+          setUserName(userData.name);
+          setStatistics(statsData);
+          setError(null);
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+        if (isMounted) {
+          setError('Failed to load data. Please try again.');
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleCreateHabit = async (habitData) => {
     try {
       await createHabit(habitData);
       setShowForm(false);
-      await loadData();
+      const [newHabits, newStats] = await Promise.all([
+        fetchHabits(),
+        getHabitStatistics()
+      ]);
+      setHabits(newHabits);
+      setStatistics(newStats);
+      setError(null);
     } catch (error) {
       console.error('Error creating habit:', error);
       setError('Failed to create habit. Please try again.');
     }
   };
 
+  const chartData = [
+    ['Habit', 'Completion Rate'],
+    ...habits.map(habit => [habit.name, habit.completionRate || 0])
+  ];
+
   const formatCompletionRate = (rate) => {
     return typeof rate === 'number' ? rate.toFixed(2) : '0.00';
   };
-
-  if (loading) {
-    return <Spinner animation="border" role="status">
-      <span className="sr-only">Loading...</span>
-    </Spinner>;
-  }
 
   return (
     <Container>
@@ -99,7 +111,7 @@ function Dashboard() {
                     <Button variant="outline-primary" size="sm" className="mr-2" as={Link} to={`/habit/${habit.id}`}>
                       View Details
                     </Button>
-                    <Button variant="outline-success" size="sm" onClick={() => updateHabitProgress(habit.id, {completed: true})}>Mark Complete</Button>
+                    <Button variant="outline-success" size="sm">Mark Complete</Button>
                   </div>
                 </ListGroup.Item>
               ))}
@@ -122,10 +134,7 @@ function Dashboard() {
                   height={'300px'}
                   chartType="PieChart"
                   loader={<div>Loading Chart</div>}
-                  data={[
-                    ['Habit', 'Completion Rate'],
-                    ...habits.map(habit => [habit.name, habit.completionRate || 0])
-                  ]}
+                  data={chartData}
                   options={{
                     title: 'Habit Completion Rates',
                     is3D: true,
