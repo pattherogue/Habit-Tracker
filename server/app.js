@@ -12,6 +12,8 @@ const app = express();
 const corsOptions = {
   origin: process.env.CLIENT_URL || 'http://localhost:3000',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 // Middleware
@@ -29,6 +31,12 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 // Handle React routing, return all requests to React app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+});
+
+// Global error logging middleware
+app.use((err, req, res, next) => {
+  console.error('Global error handler:', err);
+  next(err);
 });
 
 // Error handling

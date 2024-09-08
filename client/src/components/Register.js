@@ -13,14 +13,17 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Registration attempt for:', email);
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
     try {
-      await register(name, email, password);
+      const response = await register(name, email, password);
+      console.log('Registration response:', response);
       history.push('/login');
     } catch (err) {
+      console.error('Registration error:', err);
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
