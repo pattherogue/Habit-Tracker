@@ -2,7 +2,7 @@ require('dotenv').config();
 
 // Check for JWT_SECRET immediately after loading environment variables
 if (!process.env.JWT_SECRET) {
-  console.error('JWT_SECRET is not set. Please set it in your .env file.');
+  console.error('JWT_SECRET is not set. Please set it in your .env file or in the environment variables.');
   process.exit(1);
 }
 
