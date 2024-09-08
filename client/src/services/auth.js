@@ -5,8 +5,10 @@ export const login = (email, password) => {
 };
 
 export const register = async (name, email, password) => {
+  console.log('Making API call to register');
   try {
     const response = await api.post('/auth/register', { name, email, password });
+    console.log('API response:', response);
     return response.data;
   } catch (error) {
     console.error('API Error:', error.response || error);

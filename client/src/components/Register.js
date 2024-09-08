@@ -19,6 +19,7 @@ function Register() {
       return;
     }
     try {
+      console.log('Calling register function');
       const response = await register(name, email, password);
       console.log('Registration response:', response);
       history.push('/login');
