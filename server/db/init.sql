@@ -1,0 +1,37 @@
+DROP TABLE IF EXISTS habit_progress CASCADE;
+DROP TABLE IF EXISTS habits CASCADE;
+DROP TABLE IF EXISTS cart_items CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+CREATE TABLE IF NOT EXISTS users (
+   id SERIAL PRIMARY KEY,
+   name VARCHAR(255) NOT NULL,
+   email VARCHAR(255) UNIQUE NOT NULL,
+   password VARCHAR(255) NOT NULL,
+   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS habits (
+   id SERIAL PRIMARY KEY,
+   user_id INTEGER REFERENCES users(id),
+   name VARCHAR(255) NOT NULL,
+   frequency VARCHAR(50),
+   goal TEXT,
+   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS habit_progress (
+   id SERIAL PRIMARY KEY,
+   habit_id INTEGER REFERENCES habits(id),
+   completed BOOLEAN NOT NULL,
+   date DATE NOT NULL,
+   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- If you need the cart_items table, add its creation here
+-- CREATE TABLE IF NOT EXISTS cart_items (
+--    id SERIAL PRIMARY KEY,
+--    user_id INTEGER REFERENCES users(id),
+--    -- Add other necessary columns
+--    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+-- );
