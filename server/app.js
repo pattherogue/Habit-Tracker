@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser'); // Import cookie parser
 const path = require('path');
 const { errorHandler } = require('./middleware/errorHandler');
 const authRoutes = require('./routes/auth');
@@ -19,6 +20,7 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser()); // Use cookie parser middleware
 app.use(morgan('dev'));
 
 // API Routes
