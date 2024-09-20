@@ -4,6 +4,12 @@ const db = require('../config/database');
 
 exports.register = async (req, res, next) => {
   const { name, email, password } = req.body;
+
+  // Password length validation
+  if (password.length < 8) {
+    return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+  }
+
   try {
     const userExists = await db.query('SELECT * FROM users WHERE email = $1', [email]);
     if (userExists.rows.length > 0) {
