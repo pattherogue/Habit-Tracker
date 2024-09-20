@@ -5,7 +5,7 @@ import { fetchHabitDetails, updateHabitProgress, updateHabit, deleteHabit } from
 import { Chart } from "react-google-charts";
 import HabitForm from './HabitForm';
 
-function HabitDetail() {
+function HabitDetail({ onUpdateHabit }) { // Accept onUpdateHabit prop
   const [habit, setHabit] = useState(null);
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -28,9 +28,13 @@ function HabitDetail() {
   }, [loadHabitDetails]);
 
   const handleMarkComplete = async () => {
+    const updatedHabit = { ...habit, completed: true, completionRate: 100 }; // Immediate local update
+    setHabit(updatedHabit);
+    onUpdateHabit(updatedHabit); // Notify parent to update its state
+
     try {
       await updateHabitProgress(id, { completed: true, date: new Date() });
-      loadHabitDetails();
+      loadHabitDetails(); // Optionally reload details for accuracy
     } catch (error) {
       console.error('Error updating habit progress:', error);
       setError('Failed to update habit progress. Please try again.');

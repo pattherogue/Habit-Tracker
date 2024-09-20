@@ -6,7 +6,7 @@ function HabitList({ habits }) {
   return (
     <ListGroup>
       {habits.map(habit => (
-        <ListGroup.Item key={habit.id}>
+        <ListGroup.Item key={habit.id} className={habit.completed ? 'completed' : ''}>
           <Link to={`/habit/${habit.id}`}>{habit.name}</Link>
           <span className="float-right">
             Completion rate: {habit.completionRate || 0}%
